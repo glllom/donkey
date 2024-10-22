@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 def get_basic_hole_code(x, y):
     holes['x'].append(x)
     holes['y'].append(y)
-    return f"G00 X{x} Y{y} F3000", "G1 Z7 F1000", "G00 Z30 F3000"
+    return f"G01 X{x} Y{y} F5000", "G1 Z7 F2000", "G01 Z20 F5000"
+    # return [f"G73 X{x} Y{y} Z-7 Q7"]
 
 
 def shelves_code(width, height, num):
@@ -23,7 +24,8 @@ def shelves_code(width, height, num):
 
 
 def finalize_code():
-    code.extend(["M5", "G00 X550 Y850 Z130 F5000"])
+    code.extend(["M5", "G0 Z75", "G01 X300 Y940 F5000"])
+    code.extend(["M30"])
     file_text = f"(X = {main_width}, Y = {main_height}, Z = {panel_thickness})\n"
     for row in range(len(code)):
         file_text += 'N' + str((row + 1) * 10) + ' ' + code[row] + '\n'
@@ -35,7 +37,7 @@ holes = {'x': [], 'y': []}
 main_width, main_height = [int(num.strip()) for num in input("Enter the width and height of the piece: ").split(',')]
 top_panel, bottom_panel = 1, 1  # 1 - inside, 2 - outside
 panel_thickness = 17
-code = ["G00G21G17G90G40G49G80", "G71G91.1", "T1M06", "G00G43Z100.000H1", "S2400M03", "G94"]
+code = ["G00G21G17G90G40G49G80", "G71G91.1", "T2M06", "G00G43Z100.000H2,", "S2400M03", "G94"]
 
 print("Type of Drilling:\n1)Shelves\n2)...")
 choice = input()
