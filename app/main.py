@@ -9,7 +9,7 @@ def get_basic_hole_code(x, y):
 
 
 def shelves_code(width, height, quantity):
-    offset_x = 45
+    offset_x = 40
     offset_y = -13
     step = 32
     max_height = 940.1
@@ -43,8 +43,8 @@ def finalize_code():
 
 holes = {'x': [], 'y': []}
 
-main_width = int(input("Enter the width of the piece(default: 580): ") or '400')
-main_height = int(input("Enter the height of the piece(default: 750): ") or '2180')
+main_width = int(input("Enter the width of the piece(default: 580): ") or '580')
+main_height = int(input("Enter the height of the piece(default: 750): ") or '750')
 top_panel, bottom_panel = 1, 1  # 1 – inside, 2 – outside
 panel_thickness = 17
 snd_step = []
@@ -54,7 +54,7 @@ code = ["G00G21G17G90G40G49G80", "G71G91.1", "T2M06", "G00G43Z100.000H2,", "S240
 # choice = input() or '1'
 choice = '1'
 if choice == "1":
-    num = int(input("Enter a quantity of shelves(default: 1): ") or '4')
+    num = int(input("Enter a quantity of shelves(default: 1): ") or '1')
     shelves_code(main_width, main_height, num)
 with open(f"product/shelf_{main_width}x{main_height}.txt", "w+") as file:
     file.write(finalize_code())
