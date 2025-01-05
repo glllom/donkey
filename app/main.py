@@ -1,32 +1,39 @@
 import matplotlib.pyplot as plt
 
 
-def get_basic_hole_code(x, y):
+def get_basic_hole_code(x, y, depth=10, thickness=17):
     holes['x'].append(x)
     holes['y'].append(y)
-    return f"G01 X{x} Y{y} F5000", "G1 Z7 F2000", "G01 Z20 F5000"
+    return f"G01 X{x} Y{y} F5000", f"G1 Z{thickness-depth} F2000", f"G01 Z{thickness+5} F5000"
     # return [f"G73 X{x} Y{y} Z-7 Q7"]
 
 
-def shelves_code(width, height, quantity):
+def shelves_code(width, height, quantity, top, bottom):
     offset_x = 40
-    offset_y = -13
+    offset_y = -23  # regular -13 for material 17
     step = 32
     max_height = 940.1
     for i in range(quantity):
-        y = round(panel_thickness / 2 + (quantity - i) * (height - panel_thickness) / (quantity + 1) + offset_y, 1)
+        if top == 1 and bottom == 1:
+            y = round(panel_thickness / 2 + (quantity - i) * (height - panel_thickness) / (quantity + 1) + offset_y, 1)
+        else:
+            y = round(-panel_thickness / 2 + (quantity - i) * (height + panel_thickness) / (quantity + 1) + offset_y, 1)
         for level in [1, 0, -1]:
             if y + step * level > max_height:
-                snd_step.extend(get_basic_hole_code(offset_x, round(y + step * level - max_height, 1)))
+                snd_step.extend(get_basic_hole_code(offset_x, round(y + step * level - max_height, 1), thickness=panel_thickness))
             else:
-                code.extend(get_basic_hole_code(offset_x, y + step * level))
+                code.extend(get_basic_hole_code(offset_x, y + step * level, thickness=panel_thickness))
     for i in range(quantity):
-        y = round(panel_thickness / 2 + (i + 1) * (height - panel_thickness) / (quantity + 1) + offset_y, 1)
+        if top == 1 and bottom == 1:
+            y = round(panel_thickness / 2 + (i + 1) * (height - panel_thickness) / (quantity + 1) + offset_y, 1)
+        else:
+            y = round(-panel_thickness / 2 + (i + 1) * (height + panel_thickness) / (quantity + 1) + offset_y, 1)
+
         for level in [-1, 0, 1]:
             if y + step * level > max_height:
-                snd_step.extend(get_basic_hole_code(width - offset_x, round(y + step * level - max_height, 1)))
+                snd_step.extend(get_basic_hole_code(width - offset_x, round(y + step * level - max_height, 1), thickness=panel_thickness))
             else:
-                code.extend(get_basic_hole_code(width - offset_x, y + step * level))
+                code.extend(get_basic_hole_code(width - offset_x, y + step * level, thickness=panel_thickness))
 
 
 def finalize_code():
@@ -43,10 +50,10 @@ def finalize_code():
 
 holes = {'x': [], 'y': []}
 
-main_width = int(input("Enter the width of the piece(default: 580): ") or '580')
-main_height = int(input("Enter the height of the piece(default: 750): ") or '750')
-top_panel, bottom_panel = 1, 1  # 1 – inside, 2 – outside
-panel_thickness = 17
+main_width = int(input("Enter the width of the piece(default: 351): ") or '351')
+main_height = int(input("Enter the height of the piece(default: 1942): ") or '1942')
+top_panel, bottom_panel = 2, 2  # 1 – inside, 2 – outside
+panel_thickness = 28  # regular 17
 snd_step = []
 code = ["G00G21G17G90G40G49G80", "G71G91.1", "T2M06", "G00G43Z100.000H2,", "S2400M03", "G94"]
 
@@ -55,7 +62,7 @@ code = ["G00G21G17G90G40G49G80", "G71G91.1", "T2M06", "G00G43Z100.000H2,", "S240
 choice = '1'
 if choice == "1":
     num = int(input("Enter a quantity of shelves(default: 1): ") or '1')
-    shelves_code(main_width, main_height, num)
+    shelves_code(main_width, main_height, num, top_panel, bottom_panel)
 with open(f"product/shelf_{main_width}x{main_height}.txt", "w+") as file:
     file.write(finalize_code())
     file.close()
